@@ -67,9 +67,14 @@
     }
 
     function draw() {
+        noSmooth();
+    //    blendMode(LIGHTEST);
+
+
         // background(51);
         c1 = color(255);
         c2 = color(63, 191, 191);
+
 
         for (let y = 0; y < height; y++) {
             n = map(y, 0, height, 0, 1);
@@ -98,7 +103,7 @@
             translate(pos.x, pos.y);
             rotate(angle);
 
-            let pink = color(255, 192, 203);
+            let pink = color(255, 192, 203, 140);
             // Style the circle using a color gradient.
             let myGradient = drawingContext.createRadialGradient(25, 25, 3, 25, 25, 50);
 
@@ -109,13 +114,24 @@
             let circleColor = lerpColor(c1, c2, n);
 
             myGradient.addColorStop(0, circleColor.toString('#rrggbb'));
-            myGradient.addColorStop(1, pink);
+            myGradient.addColorStop(0.8, pink);
 
             drawingContext.fillStyle = myGradient;
             drawingContext.strokeStyle = 'rgba(0, 0, 0, 0)';
 
+            // add a thin radial gradient border to blend border of circles with background
+            // let myGradientBorder = drawingContext.createRadialGradient(25, 25, 3, 25, 25, 50);
+            // slightly thicker border
+            let myGradientBorder = drawingContext.createRadialGradient(50, 50, 3, 25, 25, 52);
+            myGradientBorder.addColorStop(0, pink);
+            myGradientBorder.addColorStop(1, circleColor.toString('#rrggbb'));
+            drawingContext.strokeStyle = myGradientBorder;
+
+            // determine diameter of circle based on y position
+            // let diameter = 50
+            diameter = map(pos.y, 0, height, 10, 50);
             // Draw the circle
-            circle(0, 0, 50);
+            circle(0, 0, diameter);
 
             pop();
 
@@ -132,6 +148,9 @@
                 Composite.add(engine.world, circle);
             }
         }
+
+    //    blendMode(LIGHTEST);
+        // blendMode(EXCLUSION);
     }
 
     function willOverlap(box1, box2) {
