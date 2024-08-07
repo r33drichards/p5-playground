@@ -97,15 +97,24 @@
             push();
             translate(pos.x, pos.y);
             rotate(angle);
+
             let pink = color(255, 192, 203);
             // Style the circle using a color gradient.
             let myGradient = drawingContext.createRadialGradient(25, 25, 3, 25, 25, 50);
-            myGradient.addColorStop(0, c2);
+
+            // Calculate color gradient based on y position
+            let c1 = color(255);
+            let c2 = color(63, 191, 191);
+            let n = map(pos.y, 0, height, 0, 1);
+            let circleColor = lerpColor(c1, c2, n);
+
+            myGradient.addColorStop(0, circleColor.toString('#rrggbb'));
             myGradient.addColorStop(1, pink);
+
             drawingContext.fillStyle = myGradient;
             drawingContext.strokeStyle = 'rgba(0, 0, 0, 0)';
 
-            // Draw the circle.
+            // Draw the circle
             circle(0, 0, 50);
 
             pop();
