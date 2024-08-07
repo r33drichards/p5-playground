@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Matter.js with p5.js</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+</head>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+
+    <script>
+        // Define global variables
+        let Engine = Matter.Engine,
+            Render = Matter.Render,
+            Runner = Matter.Runner,
+            Bodies = Matter.Bodies,
+            Composite = Matter.Composite,
+            Events = Matter.Events,
+            Vector = Matter.Vector;
+
+        let engine;
+        let boxes = [];
+
+        function setup() {
+            screenwidth = window.innerWidth;
+            screenheight = window.innerHeight;
+            createCanvas(screenwidth, screenheight);
+            // createCanvas(800, 600);
+
+            // Create the Matter.js engine
+            engine = Engine.create();
+            engine.gravity.y = 0;
+            engine.gravity.x = 0;
+
+            // Add some circles off-screen below ground
+            for (let i = 0; i < 250; i++) {
+                let x = random(width);
+                let y = random(height, height + 1000); // Spawn below the canvas
+                let circle = Bodies.circle(x, y, 25);
+                if (boxes.some(box => willOverlap(box, circle))) {
+                    i--;
+                    continue;
+                }
+                boxes.push(circle);
+            }
+
+            Composite.add(engine.world, boxes);
+
+            // Detect collisions
+            Events.on(engine, 'collisionStart', function (event) {
+                let pairs = event.pairs;
+                for (let pair of pairs) {
+                    console.log('Collision detected between:', pair.bodyA, pair.bodyB);
+                }
+            });
+
+            // Run the engine
+            Runner.run(engine);
+        }
+
+        function draw() {
+            background(51);
+
+            // Calculate Perlin noise values for x direction
+            let noiseScale = 0.01;
+            for (let box of boxes) {
+                let xNoise = noise(noiseScale * frameCount + box.position.y * noiseScale);
+
+                // Set velocity based on noise values and constant upward velocity
+                let velocityX = map(xNoise, 0, 1, -1, 1);
+                let velocityY = -1;  // Constant upward velocity
+                let velocity = Vector.create(velocityX, velocityY);
+
+                Matter.Body.setVelocity(box, velocity);
+
+                // Draw the circles
+                let pos = box.position;
+                let angle = box.angle;
+                push();
+                translate(pos.x, pos.y);
+                rotate(angle);
+                fill(255);
+                circle(0, 0, 50);
+                pop();
+
+                // destroy circles that move off the top of the canvas
+                if (pos.y < -25) {
+                    // Matter.Body.setPosition(box, { x: random(width), y: height + 25 });
+                    Matter.Composite.remove(engine.world, box);
+                }
+            }
+            let newBoxes = [];
+            if (frameCount % 1000 === 0) {
+                // Add some circles off-screen below ground
+                for (let i = 0; i < 250; i++) {
+                    let x = random(width);
+                    let y = random(height, height + 1000); // Spawn below the canvas
+                    let circle = Bodies.circle(x, y, 25);
+                    if (newBoxes.some(box => willOverlap(box, circle)) || boxes.some(box => willOverlap(box, circle))) {
+                        i--;
+                        continue;
+                    }
+                    newBoxes.push(circle);
+                }
+                Composite.add(engine.world, newBoxes);
+                boxes = boxes.concat(newBoxes);
+            }
+        }
+        function willOverlap(box1, box2) {
+            let distance = dist(box1.position.x, box1.position.y, box2.position.x, box2.position.y);
+            return distance < 50;
+        }
+        function windowResized() {
+            screenwidth = window.innerWidth;
+            screenheight = window.innerHeight;
+            resizeCanvas(screenwidth, screenheight);
+        }
+    </script>
+<body>
+
+</body>
+
+</html>
