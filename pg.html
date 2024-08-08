@@ -17,25 +17,27 @@
         display: block;
     }
 
-    /* Optional: Gradient background */
-    body {
-        background: linear-gradient(to bottom, #f0f0f0, #c0c0c0);
-    }
 </style>
 
 <script>
-    let axiom = "F";
+    let axiom = "FX";
     let rules = [
         {
             pre: "F",
             next: "F[+FF][-FF]F[-F][+F]F",
         },
+        {
+            pre: "X",
+            next: "F++[F]X"
+        }
     ];
     let sentence = axiom;
     let len = 512;
-    let generations = 4;
-    let angle = 45;
-    let angleIncrement = 0.001; // Controls the speed of angle change
+    let generations = 3;
+    let angle = 285;
+    let tangle = -285;
+    let angleIncrement = -0.00025; // Controls the speed of angle change
+    let tangleIncrement = 0.00025; // Controls the speed of angle change
 
     function setup() {
         createCanvas(windowWidth, windowHeight);
@@ -49,13 +51,16 @@
     }
 
     function draw() {
-        background(240);
         angle += angleIncrement;
+        tangle += tangleIncrement;
+
+        background(240);
+
 
         // Draw turtles dynamically
         for (let i = 0; i < 3; i++) {
             let x = width / 3 * i + width / 6;
-            let y = height / 4 * 3 + noise(frameCount * 0.01 + i) * 100 - 50; // Noise for dynamic positioning
+            let y = height
             push();
             turtle(x, y);
             pop();
@@ -63,20 +68,20 @@
 
         for (let i = 0; i < 3; i++) {
             let x = width / 3 * i + width / 6;
-            let y = height / 4 - noise(frameCount * 0.01 + i) * 100 + 50; // Noise for dynamic positioning
+            let y = 0
             push();
             upsideDownTurtle(x, y);
             pop();
         }
 
-        // Optional: Adjust angle every 1024 frames
-        if (frameCount % 1024 == 0) {
-            changeAngle();
-        }
+
+
+
     }
 
     function changeAngle() {
         angleIncrement *= -1; // Reverse angle change direction
+        tangleIncrement *= -1; // Reverse angle change direction
     }
 
     function turtle(x, y) {
@@ -111,10 +116,10 @@
                 stroke(0);
                 line(0, 0, 0, len);
                 translate(0, len);
-            } else if (current === "+") {
-                rotate(-angle);
             } else if (current === "-") {
-                rotate(angle);
+                rotate(-tangle);
+            } else if (current === "+") {
+                rotate(tangle);
             } else if (current === "[") {
                 push();
             } else if (current === "]") {
