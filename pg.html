@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>L-System Renderer</title>
+    <title>Cool L-System Renderer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
 </head>
 
@@ -11,6 +11,15 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+    }
+
+    canvas {
+        display: block;
+    }
+
+    /* Optional: Gradient background */
+    body {
+        background: linear-gradient(to bottom, #f0f0f0, #c0c0c0);
     }
 </style>
 
@@ -26,11 +35,11 @@
     let len = 512;
     let generations = 4;
     let angle = 45;
-    let angleIncrement = 0.001;  // Controls the speed of angle change
+    let angleIncrement = 0.001; // Controls the speed of angle change
 
     function setup() {
         createCanvas(windowWidth, windowHeight);
-        background(255);
+        background(240);
 
         // Generate the L-system sentence
         for (let i = 0; i < generations; i++) {
@@ -40,41 +49,34 @@
     }
 
     function draw() {
-        background(255);
+        background(240);
         angle += angleIncrement;
 
-        // Draw three turtles at the bottom of the canvas
+        // Draw turtles dynamically
         for (let i = 0; i < 3; i++) {
             let x = width / 3 * i + width / 6;
-            let y = height;
+            let y = height / 4 * 3 + noise(frameCount * 0.01 + i) * 100 - 50; // Noise for dynamic positioning
             push();
             turtle(x, y);
             pop();
         }
 
-        // Draw three turtles at the top of the canvas
         for (let i = 0; i < 3; i++) {
             let x = width / 3 * i + width / 6;
-            let y = 0;
+            let y = height / 4 - noise(frameCount * 0.01 + i) * 100 + 50; // Noise for dynamic positioning
             push();
             upsideDownTurtle(x, y);
             pop();
         }
-        console.log(frameCount);
-        if (frameCount % 1500 == 0) {
+
+        // Optional: Adjust angle every 1024 frames
+        if (frameCount % 1024 == 0) {
             changeAngle();
         }
     }
 
     function changeAngle() {
-        switch (angleIncrement) {
-            case -0.001:
-                angleIncrement = 0.001;
-                break;
-            case 0.001:
-                angleIncrement = -0.001;
-                break;
-        }
+        angleIncrement *= -1; // Reverse angle change direction
     }
 
     function turtle(x, y) {
