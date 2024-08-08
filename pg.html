@@ -17,43 +17,63 @@
 <script>
     let axiom = "F";
     let rules = [
-
         {
             pre: "F",
-            next: "FF-[XY]+[XY]"
+            next: "F[+FF][-FF]F[-F][+F]F",
         },
-        {
-            pre: "X",
-            next: "+FY"
-        },
-        {
-            pre: "Y",
-            next: "-FX"
-        }
-
     ];
     let sentence = axiom;
-    let len = 256;
-    let angle;
+    let len = 512;
+    let generations = 4;
+    let angle = 45;
+    let angleIncrement = 0.001;  // Controls the speed of angle change
 
     function setup() {
         createCanvas(windowWidth, windowHeight);
         background(255);
-        angle = radians(45);
+
+        // Generate the L-system sentence
+        for (let i = 0; i < generations; i++) {
+            applyRules();
+            len *= 0.5;
+        }
     }
 
-    let generations = 6;
-
     function draw() {
-        // nothing to draw continuously
-        applyRules();
         background(255);
-        turtle(width/1.5, height);
-        // turtle(width/4, height);
+        angle += angleIncrement;
 
-        generations--;
-        if (generations === 0) {
-            noLoop();
+        // Draw three turtles at the bottom of the canvas
+        for (let i = 0; i < 3; i++) {
+            let x = width / 3 * i + width / 6;
+            let y = height;
+            push();
+            turtle(x, y);
+            pop();
+        }
+
+        // Draw three turtles at the top of the canvas
+        for (let i = 0; i < 3; i++) {
+            let x = width / 3 * i + width / 6;
+            let y = 0;
+            push();
+            upsideDownTurtle(x, y);
+            pop();
+        }
+        console.log(frameCount);
+        if (frameCount % 1500 == 0) {
+            changeAngle();
+        }
+    }
+
+    function changeAngle() {
+        switch (angleIncrement) {
+            case -0.001:
+                angleIncrement = 0.001;
+                break;
+            case 0.001:
+                angleIncrement = -0.001;
+                break;
         }
     }
 
@@ -79,6 +99,28 @@
         }
     }
 
+    function upsideDownTurtle(x, y) {
+        translate(x, y);
+        stroke(0);
+        noFill();
+        for (let i = 0; i < sentence.length; i++) {
+            let current = sentence.charAt(i);
+            if (current === "F") {
+                stroke(0);
+                line(0, 0, 0, len);
+                translate(0, len);
+            } else if (current === "+") {
+                rotate(-angle);
+            } else if (current === "-") {
+                rotate(angle);
+            } else if (current === "[") {
+                push();
+            } else if (current === "]") {
+                pop();
+            }
+        }
+    }
+
     function applyRules() {
         let nextSentence = "";
         for (let i = 0; i < sentence.length; i++) {
@@ -96,10 +138,7 @@
             }
         }
         sentence = nextSentence;
-        len *= 0.5;
     }
-
-
 </script>
 
 <body>
