@@ -16,7 +16,6 @@
     canvas {
         display: block;
     }
-
 </style>
 
 <script>
@@ -39,6 +38,10 @@
     let angleIncrement = -0.00025; // Controls the speed of angle change
     let tangleIncrement = 0.00025; // Controls the speed of angle change
 
+    // Set the noise level and scale.
+    let noiseLevel = .002;
+    let noiseValue = 0;
+
     function setup() {
         createCanvas(windowWidth, windowHeight);
         background(240);
@@ -48,11 +51,28 @@
             applyRules();
             len *= 0.5;
         }
+        // Calculate the noise value for each turtle
+        let n = noise(0)
+        noiseValue = map(n, 0, 1, -noiseLevel, noiseLevel);
+
     }
 
     function draw() {
-        angle += angleIncrement;
-        tangle += tangleIncrement;
+
+        if (frameCount % 100 == 0) {
+
+            let n = noise(frameCount)
+            noiseValue = map(n, 0, 1, -noiseLevel, noiseLevel);
+
+        }
+
+
+
+        // based on the noise value, change the angle of the turtle, 
+
+        // Change the angle of the turtle with the noise value
+        angle += noiseValue;
+        tangle += noiseValue;
 
         background(240);
 
